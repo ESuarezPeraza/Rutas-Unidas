@@ -57,6 +57,9 @@ app.*.map.json
 # Maps configuration (contains API keys)
 /lib/config/maps_config.dart
 
+# Web build files (may contain API keys if not properly configured)
+/web/index.html
+
 # Firebase configuration
 google-services.json
 GoogleService-Info.plist

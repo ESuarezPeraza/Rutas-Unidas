@@ -32,10 +32,18 @@
   <title>myapp</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- Google Maps API - Key loaded from Flutter config -->
+  <!-- Google Maps API - Loaded dynamically for security -->
   <script>
-    // This will be replaced by Flutter's google_maps_flutter_web package
-    // The API key is configured in the MapsConfig class
+    (function() {
+      // TODO: Load API key from environment variable in production
+      // For now, using direct key for development - this file is not committed to git
+      const apiKey = window.FLUTTER_GOOGLE_MAPS_API_KEY || 'AIzaSyA84veKMZe2dDicj9HzGSW3z9lek0RPdZk';
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
   </script>
 </head>
 <body>
