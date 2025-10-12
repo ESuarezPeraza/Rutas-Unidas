@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide SearchBar;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/screens/create_trip_screen.dart';
+import 'package:myapp/screens/my_trips_screen.dart';
 import 'package:myapp/screens/profile_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -91,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     ExploreScreen(),
-    Text('Mis Viajes'), // Placeholder
+    MyTripsScreen(),
     CreateTripScreen(),
     ProfileScreen(),
   ];

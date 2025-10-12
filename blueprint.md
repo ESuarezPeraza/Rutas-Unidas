@@ -26,6 +26,7 @@ El proyecto está estructurado de la siguiente manera:
 *   `lib/main.dart`: El punto de entrada de la aplicación, contiene la configuración del tema y la navegación principal.
 *   `lib/screens/`: Carpeta que contiene las pantallas principales de la aplicación.
     *   `create_trip_screen.dart`: Pantalla para crear un nuevo viaje.
+    *   `my_trips_screen.dart`: Pantalla para ver los viajes del usuario.
     *   `profile_screen.dart`: Pantalla de perfil de usuario.
 *   `lib/widgets/`: Carpeta que contiene todos los widgets reutilizables de la aplicación.
     *   `custom_form_field.dart`: Widget de campo de formulario personalizado.
@@ -38,6 +39,7 @@ El proyecto está estructurado de la siguiente manera:
     *   `section_header.dart`: Widget para los títulos de las secciones.
     *   `trip_card.dart`: Widget para mostrar la información de un viaje.
     *   `trip_history.dart`: Widget para el historial de viajes del perfil.
+    *   `trip_section.dart`: Widget para mostrar secciones de viajes en la pantalla "Mis Viajes".
 
 ## Funcionalidades Implementadas
 
@@ -66,6 +68,10 @@ El proyecto está estructurado de la siguiente manera:
     *   **Cabecera de Perfil:** Muestra el avatar, nombre, rol y fecha de membresía del usuario.
     *   **Barra de Experiencia:** Muestra el nivel de experiencia del usuario.
     *   **Historial de Viajes:** Lista de viajes pasados y futuros en pestañas.
+*   **Pantalla "Mis Viajes"**
+    *   **Viajes Programados:** Sección que muestra los próximos viajes del usuario.
+    *   **Viajes Realizados:** Sección que muestra los viajes que el usuario ya ha completado.
+    *   Cada viaje en la lista muestra una imagen, título, fecha y si el usuario es "Organizador" o "Participante".
 
 *   **Tema:**
     *   Tema claro y oscuro implementado con `provider`.
@@ -73,7 +79,6 @@ El proyecto está estructurado de la siguiente manera:
 
 ## Próximos Pasos
 
-*   Implementar la funcionalidad de los botones de filtro y las etiquetas de filtro.
-*   Crear la pantalla para "Mis Viajes".
-*   Conectar la aplicación a un backend (Firebase) para gestionar los datos de los viajes y los usuarios.
+*   Implementar la funcionalidad de los botones de filtro y las etiquetas de filtro en la pantalla "Explorar".
+*   Conectar la aplicación a un backend (Firebase) para gestionar los datos de los viajes, usuarios y perfiles.
 *   Implementar la funcionalidad de selección de fecha y hora en la pantalla "Crear Viaje".
