@@ -18,6 +18,14 @@ class Trip {
   final DateTime createdAt;
   final DateTime? updatedAt;
 
+  // Nuevos campos de ubicación
+  final double? meetingLat;
+  final double? meetingLng;
+  final double? destinationLat;
+  final double? destinationLng;
+  final String? meetingAddress;
+  final String? destinationAddress;
+
   Trip({
     required this.id,
     required this.title,
@@ -33,6 +41,12 @@ class Trip {
     this.tags,
     required this.createdAt,
     this.updatedAt,
+    this.meetingLat,
+    this.meetingLng,
+    this.destinationLat,
+    this.destinationLng,
+    this.meetingAddress,
+    this.destinationAddress,
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
@@ -54,6 +68,12 @@ class Trip {
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+      meetingLat: json['meeting_lat']?.toDouble(),
+      meetingLng: json['meeting_lng']?.toDouble(),
+      destinationLat: json['destination_lat']?.toDouble(),
+      destinationLng: json['destination_lng']?.toDouble(),
+      meetingAddress: json['meeting_address'],
+      destinationAddress: json['destination_address'],
     );
   }
 
@@ -72,6 +92,12 @@ class Trip {
       'tags': tags,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
+      'meeting_lat': meetingLat,
+      'meeting_lng': meetingLng,
+      'destination_lat': destinationLat,
+      'destination_lng': destinationLng,
+      'meeting_address': meetingAddress,
+      'destination_address': destinationAddress,
     };
   }
 
@@ -90,6 +116,12 @@ class Trip {
     List<String>? tags,
     DateTime? createdAt,
     DateTime? updatedAt,
+    double? meetingLat,
+    double? meetingLng,
+    double? destinationLat,
+    double? destinationLng,
+    String? meetingAddress,
+    String? destinationAddress,
   }) {
     return Trip(
       id: id ?? this.id,
@@ -106,6 +138,12 @@ class Trip {
       tags: tags ?? this.tags,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      meetingLat: meetingLat ?? this.meetingLat,
+      meetingLng: meetingLng ?? this.meetingLng,
+      destinationLat: destinationLat ?? this.destinationLat,
+      destinationLng: destinationLng ?? this.destinationLng,
+      meetingAddress: meetingAddress ?? this.meetingAddress,
+      destinationAddress: destinationAddress ?? this.destinationAddress,
     );
   }
 

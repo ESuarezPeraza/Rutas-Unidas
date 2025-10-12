@@ -122,6 +122,12 @@ class TripsProvider with ChangeNotifier {
     bool isPublic = true,
     int maxParticipants = 10,
     List<String>? tags,
+    double? meetingLat,
+    double? meetingLng,
+    double? destinationLat,
+    double? destinationLng,
+    String? meetingAddress,
+    String? destinationAddress,
   }) async {
     _isLoading = true;
     _error = null;
@@ -149,6 +155,12 @@ class TripsProvider with ChangeNotifier {
         'max_participants': maxParticipants,
         'tags': tags,
         'created_at': DateTime.now().toIso8601String(),
+        'meeting_lat': meetingLat,
+        'meeting_lng': meetingLng,
+        'destination_lat': destinationLat,
+        'destination_lng': destinationLng,
+        'meeting_address': meetingAddress,
+        'destination_address': destinationAddress,
       };
 
       print('Datos a enviar: $tripData');

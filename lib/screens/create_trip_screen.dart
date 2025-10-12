@@ -4,6 +4,7 @@ import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/trips_provider.dart';
 import 'package:myapp/widgets/custom_form_field.dart';
 import 'package:myapp/widgets/image_picker.dart';
+import 'package:myapp/widgets/location_picker.dart';
 import 'package:myapp/theme/app_theme.dart';
 
 class CreateTripScreen extends StatefulWidget {
@@ -26,6 +27,10 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   String? _imageUrl;
   bool _isPublic = true;
   bool _isLoading = false;
+
+  // Nuevos campos de ubicación
+  LocationData? _meetingLocation;
+  LocationData? _destinationLocation;
 
   @override
   void dispose() {
@@ -113,6 +118,12 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       endDate: _selectedEndDate,
       organizerId: authProvider.currentUser!.id,
       isPublic: _isPublic,
+      meetingLat: _meetingLocation?.latitude,
+      meetingLng: _meetingLocation?.longitude,
+      destinationLat: _destinationLocation?.latitude,
+      destinationLng: _destinationLocation?.longitude,
+      meetingAddress: _meetingLocation?.address,
+      destinationAddress: _destinationLocation?.address,
     );
 
     setState(() => _isLoading = false);
@@ -194,10 +205,62 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                   controller: _routeController,
                 ),
                 const SizedBox(height: 24),
-                CustomFormField(
-                  label: 'Punto de Encuentro',
-                  placeholder: 'Ej: Plaza Altamira',
-                  controller: _meetingPointController,
+                // Selector de punto de encuentro
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Punto de Encuentro',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LocationPicker(
+                              title: 'Seleccionar Punto de Encuentro',
+                              initialLocation: _meetingLocation != null
+                                  ? LocationData(
+                                      latitude: _meetingLocation!.latitude,
+                                      longitude: _meetingLocation!.longitude,
+                                      address: _meetingLocation!.address,
+                                    )
+                                  : null,
+                              onLocationSelected: (location) {
+                                setState(() => _meetingLocation = location);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.location_on, color: Colors.red),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _meetingLocation?.address ?? 'Seleccionar ubicación en el mapa',
+                                style: TextStyle(
+                                  color: _meetingLocation != null
+                                      ? Theme.of(context).textTheme.bodyLarge?.color
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ),
+                            const Icon(Icons.map, color: Colors.blue),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -251,6 +314,66 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
+
+                // Selector de destino
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Destino del Viaje',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LocationPicker(
+                              title: 'Seleccionar Destino del Viaje',
+                              initialLocation: _destinationLocation != null
+                                  ? LocationData(
+                                      latitude: _destinationLocation!.latitude,
+                                      longitude: _destinationLocation!.longitude,
+                                      address: _destinationLocation!.address,
+                                    )
+                                  : null,
+                              onLocationSelected: (location) {
+                                setState(() => _destinationLocation = location);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.flag, color: Colors.green),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _destinationLocation?.address ?? 'Seleccionar destino en el mapa',
+                                style: TextStyle(
+                                  color: _destinationLocation != null
+                                      ? Theme.of(context).textTheme.bodyLarge?.color
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ),
+                            const Icon(Icons.map, color: Colors.blue),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
                 const SizedBox(height: 24),
                 CustomFormField(
                   label: 'Detalles Logísticos',
