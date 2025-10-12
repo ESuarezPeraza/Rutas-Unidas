@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
+import '../config/maps_config.dart';
 
 class LocationData {
   final double latitude;
@@ -81,9 +82,9 @@ class _LocationPickerState extends State<LocationPicker> {
         await _updateAddressFromCoordinates(_selectedLocation!);
         _updateMarker();
       } else {
-        // Ubicación por defecto (Caracas, Venezuela)
-        _selectedLocation = const LatLng(10.5061, -66.9146);
-        _selectedAddress = 'Caracas, Venezuela';
+        // Ubicación por defecto
+        _selectedLocation = LatLng(MapsConfig.defaultLat, MapsConfig.defaultLng);
+        _selectedAddress = MapsConfig.defaultCountry;
         _updateMarker();
       }
     } catch (e) {
@@ -205,7 +206,7 @@ class _LocationPickerState extends State<LocationPicker> {
                 Expanded(
                   child: GoogleMap(
                     initialCameraPosition: CameraPosition(
-                      target: _selectedLocation ?? const LatLng(10.5061, -66.9146),
+                      target: _selectedLocation ?? LatLng(MapsConfig.defaultLat, MapsConfig.defaultLng),
                       zoom: 12,
                     ),
                     onMapCreated: (controller) {

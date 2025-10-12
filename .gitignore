@@ -54,6 +54,9 @@ app.*.map.json
 # Supabase configuration (contains sensitive keys)
 /lib/config/supabase_config.dart
 
+# Maps configuration (contains API keys)
+/lib/config/maps_config.dart
+
 # Firebase configuration
 google-services.json
 GoogleService-Info.plist
