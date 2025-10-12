@@ -61,12 +61,15 @@ class _MyTripsScreenAppleState extends State<MyTripsScreenApple>
     );
 
     // Crear animaciones para cada elemento
-    // Total: 2 títulos + 2 viajes programados + 1 divider + 2 viajes realizados = 7
-    final totalItems = 10; // Aumentamos para tener suficientes animaciones
+    final totalAnimatedItems = 1 + // Título "Viajes Programados"
+        _scheduledTrips.length +
+        1 + // Divider
+        1 + // Título "Viajes Realizados"
+        _completedTrips.length;
     _fadeAnimations = [];
     _slideAnimations = [];
 
-    for (int i = 0; i < totalItems; i++) {
+    for (int i = 0; i < totalAnimatedItems; i++) {
       final start = (i * 0.08).clamp(0.0, 0.8);
       final end = (start + 0.3).clamp(0.0, 1.0);
 
