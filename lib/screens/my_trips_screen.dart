@@ -1,16 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/providers/trips_provider.dart';
 import 'package:myapp/widgets/trip_section.dart';
+import 'package:myapp/models/trip.dart';
 
-class MyTripsScreen extends StatelessWidget {
+class MyTripsScreen extends StatefulWidget {
   const MyTripsScreen({super.key});
 
   @override
+  State<MyTripsScreen> createState() => _MyTripsScreenState();
+}
+
+class _MyTripsScreenState extends State<MyTripsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadUserTrips();
+  }
+
+  Future<void> _loadUserTrips() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
+
+    if (authProvider.currentUser != null) {
+      await tripsProvider.loadUserTrips(authProvider.currentUser!.id);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final tripsProvider = Provider.of<TripsProvider>(context);
+
+    if (authProvider.currentUser == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Usuario no autenticado'),
+        ),
+      );
+    }
+
+    final userTrips = tripsProvider.userTrips;
+
+    // Separar viajes por estado
+    final upcomingTrips = userTrips.where((trip) =>
+      trip.isUpcoming || trip.isCurrent).toList();
+    final pastTrips = userTrips.where((trip) => trip.isPast).toList();
+
+    // Convertir a formato para TripSection
+    final upcomingTripItems = upcomingTrips.map((trip) {
+      final isOrganizer = trip.organizerId == authProvider.currentUser!.id;
+      return {
+        'imageUrl': trip.imageUrl ?? 'https://via.placeholder.com/300x200',
+        'title': trip.title,
+        'subtitle': trip.formattedDate,
+        'tag': {
+          'label': isOrganizer ? 'Organizador' : 'Participante',
+          'type': isOrganizer ? 'primary' : 'neutral'
+        }
+      };
+    }).toList();
+
+    final pastTripItems = pastTrips.map((trip) {
+      final isOrganizer = trip.organizerId == authProvider.currentUser!.id;
+      return {
+        'imageUrl': trip.imageUrl ?? 'https://via.placeholder.com/300x200',
+        'title': trip.title,
+        'subtitle': trip.formattedDate,
+        'tag': {
+          'label': isOrganizer ? 'Organizador' : 'Participante',
+          'type': isOrganizer ? 'primary' : 'neutral'
+        }
+      };
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {},
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           'Mis Viajes',
@@ -18,53 +87,46 @@ class MyTripsScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          child: Column(
-            children: [
-              const TripSection(
-                title: 'Viajes Programados',
-                items: [
-                  {
-                    'imageUrl': 'https://lh3.googleusercontent.com/aida-public/AB6AXuCxCu3i_M0mZfioxOYw1eH0FgcyTOstL5cy2PnLLtOVJRUcJV0JOVfi3zjkcepGxFZP3oGpTERRjg89jtDTIiBJbbK_AqP7hFb4uYVJN76NvjsY8o01Sl24HUcw22IWTpdWOavAHMQo1Qzoe6qT3BBjBFsjCd0pCT74AB5gu1Flu2LhgnmKymN9U-zt_LuM9IasqeMRM1Z2dkrjZooioAwztd4Xw1ZE2AJHSs48t_BAXGU4ueQp7FGfdfCVQUqCrHfJH9aWp0jQfbdR',
-                    'title': 'Ruta de los Andes',
-                    'subtitle': '15 de Julio, 2024',
-                    'tag': {'label': 'Organizador', 'type': 'primary'}
-                  },
-                  {
-                    'imageUrl': 'https://lh3.googleusercontent.com/aida-public/AB6AXuCPRKLM4Bgl8Zgl_XYUGQPcN4rQb3n8viDNqT_O7v9QsAqaCIBnzdDwILSMlfQpqaJFZOEf4_vzklNFUHUZpvKmJkLzOu5YvkT-SUC_-xpFA3HgEtuSRUxoQ-kH-LfIOhjjfjuf1fitOGXk5IYKNSKga7fc_2gAP_KN4SWJ_DGaOp0U1HK62WaKDLa0wjcv4pS99dCPlz-zZKAaVk1xFnVW071lSO6ul9z_jhp0kX6l9-h23-nD-inw17P_oircUubCt1RjpVfyD80a',
-                    'title': 'Carretera del Sur',
-                    'subtitle': '22 de Julio, 2024',
-                    'tag': {'label': 'Participante', 'type': 'neutral'}
-                  }
+      body: tripsProvider.isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Column(
+                children: [
+                  if (upcomingTripItems.isNotEmpty)
+                    TripSection(
+                      title: 'Viajes Programados (${upcomingTripItems.length})',
+                      items: upcomingTripItems,
+                    ),
+                  if (upcomingTripItems.isNotEmpty && pastTripItems.isNotEmpty)
+                    const SizedBox(height: 32),
+                  if (pastTripItems.isNotEmpty)
+                    Opacity(
+                      opacity: 0.7,
+                      child: TripSection(
+                        title: 'Viajes Realizados (${pastTripItems.length})',
+                        items: pastTripItems,
+                      ),
+                    ),
+                  if (upcomingTripItems.isEmpty && pastTripItems.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Text(
+                          'Aún no tienes viajes.\n¡Crea uno o únete a uno existente!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
-              const SizedBox(height: 32),
-              Opacity(
-                opacity: 0.7,
-                child: const TripSection(
-                  title: 'Viajes Realizados',
-                  items: [
-                    {
-                      'imageUrl': 'https://lh3.googleusercontent.com/aida-public/AB6AXuDiKZ_dFvhC43qLpokoMKzzhAbGGbavqXhPxfTPoIeYG71m_DfRM6HX0VSGcDyqXhwCLRR095NiRp_F7xqhMS8urtxQijx2ey08xyN-a6I_HKflq-IFhRVoZRCRpGji9HzUxOHAqvKhcG76pUwkWVTMUk1LpsiLZB2rv3Y3b-3_laJBl5DyXH28ICJRG7E1b0geQbwoPbbSg881-GavNF2oqQNJ8UuJCzW_XO2-65Aci8JM28sFqO-oz5Hqz_PSC4pIHkBfPWuSfc4c',
-                      'title': 'Costa Oriental',
-                      'subtitle': '10 de Junio, 2024',
-                      'tag': {'label': 'Participante', 'type': 'neutral'}
-                    },
-                    {
-                      'imageUrl': 'https://lh3.googleusercontent.com/aida-public/AB6AXuArDJmYhrORWAA7ASPyGXEQlaXOtLJrbDpmsTvyQLuQxiFDQG2-QjO-VpO-PItiRIfBCWXdGN21EKz-R0DTJFB9n1sesYDtoMHSN_0dHsIoviyMsX5AJbRtSf3uFib47xidZJLlXxuHMH_fO9O2XpeY6ecfDg2C8tr7-URoNixTx1_J3KfR61YkkfCShx2687XL2qu7qJBMsxnwSdfV9qKipWV7d5dW2-7JJQLj3o8wNYI56cfUbPzaHxxrJC0_W08VWQ2PAW5sbcHG',
-                      'title': 'Llanos Centrales',
-                      'subtitle': '5 de Mayo, 2024',
-                      'tag': {'label': 'Organizador', 'type': 'primary'}
-                    }
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 }

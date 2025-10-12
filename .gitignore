@@ -43,4 +43,44 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment variables and configuration files
 .env
+.env.local
+.env.production
+.env.staging
+*.env
+
+# Supabase configuration (contains sensitive keys)
+/lib/config/supabase_config.dart
+
+# Firebase configuration
+google-services.json
+GoogleService-Info.plist
+
+# API Keys and secrets
+**/secrets/**
+**/*key*
+**/*token*
+**/*secret*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE and editor files
+.vscode/settings.json
+.idea/workspace.xml
+*.suo
+*.user
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

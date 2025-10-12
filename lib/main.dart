@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart' hide SearchBar;
 import 'package:flutter/cupertino.dart';
+import 'package:myapp/config/supabase_config.dart';
+import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/providers/trips_provider.dart';
 import 'package:myapp/screens/create_trip_screen.dart';
-import 'package:myapp/screens/my_trips_screen_apple.dart';
+import 'package:myapp/screens/my_trips_screen.dart';
 import 'package:myapp/screens/profile_screen.dart';
 import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/widgets/auth_wrapper.dart';
+import 'package:myapp/widgets/trip_card_with_join.dart';
 import 'package:provider/provider.dart';
 
 import 'widgets/header.dart';
@@ -12,10 +17,17 @@ import 'widgets/search_bar.dart';
 import 'widgets/section_header.dart';
 import 'widgets/trip_card.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SupabaseConfig.initialize();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => TripsProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -44,7 +56,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(context),
       darkTheme: AppTheme.darkTheme(context),
       themeMode: themeProvider.themeMode,
-      home: const MyHomePage(),
+      home: const AuthWrapper(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -60,11 +72,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    ExploreScreen(),
-    MyTripsScreenApple(),
-    CreateTripScreen(),
-    ProfileScreen(),
+  static final List<Widget> _widgetOptions = <Widget>[
+    const ExploreScreen(),
+    const MyTripsScreen(),
+    const CreateTripScreen(),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -132,38 +144,40 @@ class _ExploreScreenState extends State<ExploreScreen>
   late List<Animation<double>> _fadeAnimations;
   late List<Animation<Offset>> _slideAnimations;
 
-  final _tripCards = const [
-    TripCard(
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAeClE2gYVcTjdqXUTpX7z0rsGA-38ioPFpdWvHbVLRlBXzCdiLjbFcFJTHs2wOUgPxrsI6t1RtcZJSjM5kNnRjygBOrCnVBYAV-edgZ7gk44lsyM9ULpcsnnghBqnWWRao2LwcYh5vAaF_3YvDr5ewtPmAV0WxVblyL2G9kz7_iv6n0RFmHdMxAttBv-q3p_h7txQe5VHhTRqDYvtc2eGgelU56sB4_UAF0huMDmq6E6JyPHe2Gjo5oIX3mCI-mLSVPqzZ1GryN6aP',
-      title: 'Ruta de los Andes',
-      subtitle: 'Organizado por: Ricardo',
-      trailingText: '25/07/24',
-    ),
-    SizedBox(height: 16),
-    TripCard(
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB0UYvq03--TL90Sz8FbL8QeeSzEb79marmcCYXuYRyJyf6outS5RGX2QCWqYYhUUJc_EvOWllHJ44jd5huSjd9U9mLRTRUtC7d7HQ76Mi-srr8JJLiNodj5Af3mdP1tunKaVU4_cM6DHkU3atvvDOXzkyJtghsStWopy0-ToHJNZFA5qINqUraSOeLHwS-Zx7JQhvLs7-QtTFbOpHGXdvynab2ZV5dWCMS_eieypSHa4ORiktZatZOPnGKPBzm3rCb86wE3BVK5M50',
-      title: 'Carretera Panamericana',
-      subtitle: 'Organizado por: Gabriela',
-      trailingText: '15/08/24',
-    ),
-    SizedBox(height: 16),
-    TripCard(
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuArDcXKmTC2_iJ3QXMmUq3yLVAw2AWNWZ8_wskUVki25W95Q_qe-6Um2szIvCGAiNw_2CmV26e1ieqRKG8rjBl0aO2dcWn03WV5em_jYYqYKOY-lfYQO7mp9K_Fl5p7i_odXM8DPetnXCfsJohQj4eZ2FeN7wdEtfCu4_PWn6kn7QmuVl2CfrWvbMMAdrR41C61xX4IXzPYftk6KJ7sDJ4ZwA2TeAU0pvQi0FuZQ52OBzZuL8P1GUIBz76COAwU8A9yC2cXjftFEYab',
-      title: 'Costa Oriental',
-      subtitle: 'Organizado por: Alejandro',
-      trailingText: '05/09/24',
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
+    _loadExploreTrips();
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
-    final totalItems = 4 + _tripCards.length;
+    // Inicializar animaciones con un item básico
+    _updateAnimations(4); // Header, SearchBar, ChipList, SectionHeader
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadExploreTrips() async {
+    final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
+    await tripsProvider.loadExploreTrips();
+
+    if (mounted) {
+      // Actualizar animaciones con el número real de viajes
+      final totalItems = 4 + tripsProvider.exploreTrips.length;
+      _updateAnimations(totalItems);
+      _animationController.forward();
+    }
+  }
+
+  void _updateAnimations(int totalItems) {
     _fadeAnimations = [];
     _slideAnimations = [];
 
@@ -192,14 +206,6 @@ class _ExploreScreenState extends State<ExploreScreen>
         ),
       );
     }
-
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   Widget _buildAnimatedItem(Widget child, int index) {
@@ -215,24 +221,83 @@ class _ExploreScreenState extends State<ExploreScreen>
 
   @override
   Widget build(BuildContext context) {
+    final tripsProvider = Provider.of<TripsProvider>(context);
+
     return Column(
       children: [
         _buildAnimatedItem(const Header(title: 'Explorar'), 0),
         _buildAnimatedItem(const SearchBar(), 1),
         _buildAnimatedItem(const HorizontalChipList(), 2),
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            children: [
-              _buildAnimatedItem(const SectionHeader(title: 'Próximos Viajes'), 3),
-              const SizedBox(height: 16),
-              ..._tripCards.asMap().entries.map((entry) {
-                final index = entry.key;
-                final widget = entry.value;
-                return _buildAnimatedItem(widget, 4 + index);
-              }).toList(),
-            ],
-          ),
+          child: tripsProvider.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                children: [
+                  _buildAnimatedItem(const SectionHeader(title: 'Próximos Viajes'), 3),
+                  const SizedBox(height: 16),
+                  if (tripsProvider.exploreTrips.isEmpty)
+                    _buildAnimatedItem(
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: Text(
+                            'No hay viajes disponibles.\n¡Sé el primero en crear uno!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ),
+                      4,
+                    )
+                  else
+                    ...tripsProvider.exploreTrips.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final trip = entry.value;
+                      final tripCardWithJoin = TripCardWithJoin(
+                        trip: trip,
+                        onJoinPressed: () async {
+                          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                          final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
+
+                          if (authProvider.currentUser == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Debes iniciar sesión para unirte a viajes')),
+                            );
+                            return;
+                          }
+
+                          final success = await tripsProvider.joinTrip(trip.id, authProvider.currentUser!.id);
+
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('¡Te has unido al viaje "${trip.title}"!')),
+                            );
+                            // Recargar viajes del usuario para actualizar la UI
+                            await tripsProvider.loadUserTrips(authProvider.currentUser!.id);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(tripsProvider.error ?? 'Error al unirse al viaje')),
+                            );
+                          }
+                        },
+                      );
+                      return _buildAnimatedItem(
+                        Column(
+                          children: [
+                            tripCardWithJoin,
+                            if (index < tripsProvider.exploreTrips.length - 1)
+                              const SizedBox(height: 16),
+                          ],
+                        ),
+                        4 + index,
+                      );
+                    }).toList(),
+                ],
+              ),
         ),
       ],
     );

@@ -6,6 +6,8 @@ class CustomFormField extends StatelessWidget {
   final bool multiline;
   final int lines;
   final TextInputType inputType;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
 
   const CustomFormField({
     super.key,
@@ -14,6 +16,8 @@ class CustomFormField extends StatelessWidget {
     this.multiline = false,
     this.lines = 1,
     this.inputType = TextInputType.text,
+    this.controller,
+    this.validator,
   });
 
   @override
@@ -27,6 +31,8 @@ class CustomFormField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         TextFormField(
+          controller: controller,
+          validator: validator,
           keyboardType: inputType,
           maxLines: multiline ? lines : 1,
           decoration: InputDecoration(
