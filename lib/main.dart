@@ -16,7 +16,6 @@ import 'widgets/header.dart';
 import 'widgets/horizontal_chip_list.dart';
 import 'widgets/search_bar.dart';
 import 'widgets/section_header.dart';
-import 'widgets/trip_card.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
