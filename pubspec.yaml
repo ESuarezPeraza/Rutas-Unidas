@@ -45,6 +45,9 @@ dependencies:
   # Base de datos y autenticación
   supabase_flutter: ^2.5.7
 
+  # Selección de imágenes
+  image_picker: ^1.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

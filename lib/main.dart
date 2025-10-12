@@ -9,6 +9,7 @@ import 'package:myapp/screens/profile_screen.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/auth_wrapper.dart';
 import 'package:myapp/widgets/trip_card_with_join.dart';
+import 'package:myapp/services/storage_service.dart';
 import 'package:provider/provider.dart';
 
 import 'widgets/header.dart';
@@ -20,6 +21,7 @@ import 'widgets/trip_card.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseConfig.initialize();
+  await StorageService.initializeStorage();
 
   runApp(
     MultiProvider(
@@ -147,7 +149,6 @@ class _ExploreScreenState extends State<ExploreScreen>
   @override
   void initState() {
     super.initState();
-    _loadExploreTrips();
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -157,16 +158,21 @@ class _ExploreScreenState extends State<ExploreScreen>
     // Inicializar animaciones con un item básico
     _updateAnimations(4); // Header, SearchBar, ChipList, SectionHeader
     _animationController.forward();
+
+    // Cargar datos iniciales después de que el widget esté construido
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialData();
+    });
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadExploreTrips() async {
+  Future<void> _loadInitialData() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
+
+    if (authProvider.isAuthenticated && authProvider.currentUser != null) {
+      await tripsProvider.loadUserTrips(authProvider.currentUser!.id);
+    }
+
     await tripsProvider.loadExploreTrips();
 
     if (mounted) {
@@ -176,6 +182,13 @@ class _ExploreScreenState extends State<ExploreScreen>
       _animationController.forward();
     }
   }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
 
   void _updateAnimations(int totalItems) {
     _fadeAnimations = [];

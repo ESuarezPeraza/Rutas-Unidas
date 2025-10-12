@@ -77,20 +77,24 @@ CREATE POLICY "Organizers can delete their trips" ON public.trips
   FOR DELETE USING (organizer_id = auth.uid());
 
 -- Políticas para trip_participants
-CREATE POLICY "Users can view participants of trips they can see" ON public.trip_participants
+CREATE POLICY "Users can view participants of public trips" ON public.trip_participants
   FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM public.trips
-      WHERE id = trip_id AND (
-        is_public = true OR
-        organizer_id = auth.uid() OR
-        EXISTS (
-          SELECT 1 FROM public.trip_participants tp
-          WHERE tp.trip_id = trips.id AND tp.user_id = auth.uid()
-        )
-      )
+      WHERE id = trip_id AND is_public = true
     )
   );
+
+CREATE POLICY "Users can view participants of their own trips" ON public.trip_participants
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.trips
+      WHERE id = trip_id AND organizer_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can view their own participations" ON public.trip_participants
+  FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "Users can join trips" ON public.trip_participants
   FOR INSERT WITH CHECK (auth.uid() = user_id);

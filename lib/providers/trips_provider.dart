@@ -3,6 +3,7 @@ import '../models/trip.dart';
 import '../models/trip_participant.dart';
 import '../config/supabase_config.dart';
 import '../services/experience_service.dart';
+import '../services/storage_service.dart';
 
 class TripsProvider with ChangeNotifier {
   List<Trip> _trips = [];
@@ -23,15 +24,25 @@ class TripsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      print('Cargando viajes de exploración...');
+
       final response = await SupabaseConfig.client
           .from('trips')
           .select('*, organizer:users(*)')
           .eq('is_public', true)
           .order('created_at', ascending: false);
 
-      _exploreTrips = response.map<Trip>((json) => Trip.fromJson(json)).toList();
+      print('Respuesta de Supabase: $response');
+
+      _exploreTrips = response.map<Trip>((json) {
+        print('Procesando viaje: $json');
+        return Trip.fromJson(json);
+      }).toList();
+
+      print('Viajes cargados exitosamente: ${_exploreTrips.length}');
       _error = null;
     } catch (e) {
+      print('Error detallado al cargar viajes: $e');
       _error = 'Error al cargar viajes. Verifica tu conexión a internet.';
       _exploreTrips = [];
     }
@@ -46,11 +57,15 @@ class TripsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      print('Cargando viajes del usuario: $userId');
+
       // Cargar viajes donde el usuario es organizador
       final organizerTrips = await SupabaseConfig.client
           .from('trips')
           .select('*, organizer:users(*)')
           .eq('organizer_id', userId);
+
+      print('Viajes como organizador: ${organizerTrips.length}');
 
       // Cargar viajes donde el usuario es participante
       final participantTrips = await SupabaseConfig.client
@@ -58,14 +73,20 @@ class TripsProvider with ChangeNotifier {
           .select('trip:trips(*, organizer:users(*))')
           .eq('user_id', userId);
 
+      print('Viajes como participante: ${participantTrips.length}');
+
       final trips = <Trip>[];
 
       // Agregar viajes organizados
-      trips.addAll(organizerTrips.map<Trip>((json) => Trip.fromJson(json)));
+      trips.addAll(organizerTrips.map<Trip>((json) {
+        print('Procesando viaje organizado: ${json['title']}');
+        return Trip.fromJson(json);
+      }));
 
       // Agregar viajes como participante
       for (final participant in participantTrips) {
         if (participant['trip'] != null) {
+          print('Procesando viaje como participante: ${participant['trip']['title']}');
           trips.add(Trip.fromJson(participant['trip']));
         }
       }
@@ -79,8 +100,10 @@ class TripsProvider with ChangeNotifier {
       _userTrips = uniqueTrips.values.toList()
         ..sort((a, b) => (b.startDate ?? b.createdAt).compareTo(a.startDate ?? a.createdAt));
 
+      print('Viajes del usuario cargados: ${_userTrips.length}');
       _error = null;
     } catch (e) {
+      print('Error detallado al cargar viajes del usuario: $e');
       _error = 'Error al cargar tus viajes. Verifica tu conexión a internet.';
       _userTrips = [];
     }
@@ -125,7 +148,17 @@ class TripsProvider with ChangeNotifier {
           .select('*, organizer:users(*)')
           .single();
 
-      final newTrip = Trip.fromJson(response);
+      var newTrip = Trip.fromJson(response);
+
+      // Si hay imagen, actualizar con el ID real del viaje
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        final realImageUrl = await StorageService.updateTripImage(imageUrl, newTrip.id, null);
+        if (realImageUrl != null) {
+          imageUrl = realImageUrl;
+          // Actualizar el viaje con la URL correcta
+          newTrip = newTrip.copyWith(imageUrl: realImageUrl);
+        }
+      }
 
       // Agregar el organizador como participante
       await SupabaseConfig.client.from('trip_participants').insert({
