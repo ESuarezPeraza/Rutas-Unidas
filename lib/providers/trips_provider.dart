@@ -128,6 +128,15 @@ class TripsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      print('=== CREANDO VIAJE ===');
+      print('Título: $title');
+      print('Descripción: $description');
+      print('Imagen URL: $imageUrl');
+      print('Fecha inicio: $startDate');
+      print('Fecha fin: $endDate');
+      print('Organizador ID: $organizerId');
+      print('Es público: $isPublic');
+
       final tripData = {
         'title': title,
         'description': description,
@@ -142,13 +151,18 @@ class TripsProvider with ChangeNotifier {
         'created_at': DateTime.now().toIso8601String(),
       };
 
+      print('Datos a enviar: $tripData');
+
       final response = await SupabaseConfig.client
           .from('trips')
           .insert(tripData)
           .select('*, organizer:users(*)')
           .single();
 
+      print('Respuesta de Supabase: $response');
+
       var newTrip = Trip.fromJson(response);
+      print('Viaje creado: ${newTrip.title}');
 
       // Si hay imagen, actualizar con el ID real del viaje
       if (imageUrl != null && imageUrl.isNotEmpty) {
@@ -177,11 +191,14 @@ class TripsProvider with ChangeNotifier {
       // Otorgar puntos de experiencia por crear viaje
       await ExperienceService.awardTripCreation(organizerId);
 
+      print('✅ Viaje creado exitosamente');
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
-      _error = 'Error al crear viaje. Verifica que todos los campos sean correctos.';
+      print('❌ Error detallado al crear viaje: $e');
+      print('Stack trace: ${StackTrace.current}');
+      _error = 'Error al crear viaje: $e';
       _isLoading = false;
       notifyListeners();
       return false;

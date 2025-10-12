@@ -61,24 +61,45 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   }
 
   Future<void> _createTrip() async {
-    if (!_formKey.currentState!.validate()) return;
+    print('=== INICIANDO CREACIÓN DE VIAJE ===');
 
+    // Validar formulario
+    if (!_formKey.currentState!.validate()) {
+      print('❌ Validación de formulario fallida');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verifica que todos los campos sean correctos')),
+      );
+      return;
+    }
+
+    // Validar fecha de inicio
     if (_selectedStartDate == null) {
+      print('❌ Fecha de inicio no seleccionada');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor selecciona una fecha de inicio')),
       );
       return;
     }
 
+    // Validar autenticación
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
 
     if (authProvider.currentUser == null) {
+      print('❌ Usuario no autenticado');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuario no autenticado')),
       );
       return;
     }
+
+    print('✅ Validaciones pasadas');
+    print('📝 Título: ${_titleController.text.trim()}');
+    print('📅 Fecha inicio: $_selectedStartDate');
+    print('📅 Fecha fin: $_selectedEndDate');
+    print('🖼️ Imagen URL: $_imageUrl');
+    print('👤 Organizador ID: ${authProvider.currentUser!.id}');
+    print('🌐 Es público: $_isPublic');
 
     setState(() => _isLoading = true);
 
@@ -97,6 +118,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     setState(() => _isLoading = false);
 
     if (success) {
+      print('✅ Viaje creado exitosamente');
       // Actualizar la lista de viajes del usuario
       await tripsProvider.loadUserTrips(authProvider.currentUser!.id);
 
@@ -107,6 +129,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
         Navigator.of(context).pop(); // Volver a la pantalla anterior
       }
     } else {
+      print('❌ Error al crear viaje: ${tripsProvider.error}');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(tripsProvider.error ?? 'Error al crear viaje')),
