@@ -24,13 +24,20 @@ La aplicación sigue un diseño moderno y limpio, con una paleta de colores vibr
 El proyecto está estructurado de la siguiente manera:
 
 *   `lib/main.dart`: El punto de entrada de la aplicación, contiene la configuración del tema y la navegación principal.
+*   `lib/screens/`: Carpeta que contiene las pantallas principales de la aplicación.
+    *   `create_trip_screen.dart`: Pantalla para crear un nuevo viaje.
+    *   `profile_screen.dart`: Pantalla de perfil de usuario.
 *   `lib/widgets/`: Carpeta que contiene todos los widgets reutilizables de la aplicación.
-    *   `chip.dart`: Widget para las etiquetas de filtro.
+    *   `custom_form_field.dart`: Widget de campo de formulario personalizado.
+    *   `experience_bar.dart`: Widget para la barra de experiencia del perfil.
     *   `header.dart`: Widget para la cabecera de las pantallas.
     *   `horizontal_chip_list.dart`: Widget que muestra la lista horizontal de etiquetas de filtro.
+    *   `image_picker.dart`: Widget para seleccionar una imagen.
+    *   `profile_header.dart`: Widget para la cabecera del perfil.
     *   `search_bar.dart`: Widget para la barra de búsqueda.
     *   `section_header.dart`: Widget para los títulos de las secciones.
     *   `trip_card.dart`: Widget para mostrar la información de un viaje.
+    *   `trip_history.dart`: Widget para el historial de viajes del perfil.
 
 ## Funcionalidades Implementadas
 
@@ -46,6 +53,19 @@ El proyecto está estructurado de la siguiente manera:
         *   Título del viaje.
         *   Organizador del viaje.
         *   Fecha del viaje.
+*   **Pantalla "Crear Viaje"**
+    *   Formulario para crear un nuevo viaje con los siguientes campos:
+        *   Nombre del Viaje
+        *   Descripción
+        *   Foto de portada
+        *   Ruta
+        *   Punto de Encuentro
+        *   Fecha y Hora
+        *   Detalles Logísticos Adicionales
+*   **Pantalla "Perfil"**
+    *   **Cabecera de Perfil:** Muestra el avatar, nombre, rol y fecha de membresía del usuario.
+    *   **Barra de Experiencia:** Muestra el nivel de experiencia del usuario.
+    *   **Historial de Viajes:** Lista de viajes pasados y futuros en pestañas.
 
 *   **Tema:**
     *   Tema claro y oscuro implementado con `provider`.
@@ -54,5 +74,6 @@ El proyecto está estructurado de la siguiente manera:
 ## Próximos Pasos
 
 *   Implementar la funcionalidad de los botones de filtro y las etiquetas de filtro.
-*   Crear las pantallas para "Mis Viajes", "Crear Viaje" y "Perfil".
+*   Crear la pantalla para "Mis Viajes".
 *   Conectar la aplicación a un backend (Firebase) para gestionar los datos de los viajes y los usuarios.
+*   Implementar la funcionalidad de selección de fecha y hora en la pantalla "Crear Viaje".

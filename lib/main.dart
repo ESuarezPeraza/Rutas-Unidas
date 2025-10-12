@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide SearchBar;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/screens/create_trip_screen.dart';
+import 'package:myapp/screens/profile_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'widgets/header.dart';
@@ -92,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ExploreScreen(),
     Text('Mis Viajes'), // Placeholder
     CreateTripScreen(),
-    Text('Perfil'), // Placeholder
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -166,7 +167,7 @@ class ExploreScreen extends StatelessWidget {
               ),
               SizedBox(height: 16),
               TripCard(
-                imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuArDcXKmTC2_iJ3QXMmUq3yLVAw2AWNWZ8_wskUVki25W95Q_qe-6Um2szIvCGAiNw_2CmV26e1ieqRKG8rjBl0aO2dcWn03WV5em_jYYqYKOY-lfYQO7mp9K_Fl5p7i_odXM8DPetnXCfsJohQj4eZ2FeN7wdEtfCu4_PWn6kn7QmuVl2CfrWvbMMAdrR41C61xX4IXzPYftk6KJ7sDJ4ZwA2TeAU0pvQi0FuZQ52OBzZuL8P1QUIBz76COAwU8A9yC2cXjftFEYab',
+                imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuArDcXKmTC2_iJ3QXMmUq3yLVAw2AWNWZ8_wskUVki25W95Q_qe-6Um2szIvCGAiNw_2CmV26e1ieqRKG8rjBl0aO2dcWn03WV5em_jYYqYKOY-lfYQO7mp9K_Fl5p7i_odXM8DPetnXCfsJohQj4eZ2FeN7wdEtfCu4_PWn6kn7QmuVl2CfrWvbMMAdrR41C61xX4IXzPYftk6KJ7sDJ4ZwA2TeAU0pvQi0FuZQ52OBzZuL8P1GUIBz76COAwU8A9yC2cXjftFEYab',
                 title: 'Costa Oriental',
                 subtitle: 'Organizado por: Alejandro',
                 trailingText: '05/09/24',
