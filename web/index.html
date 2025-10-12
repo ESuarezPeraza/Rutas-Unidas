@@ -35,9 +35,8 @@
   <!-- Google Maps API - Loaded dynamically for security -->
   <script>
     (function() {
-      // TODO: Load API key from environment variable in production
-      // For now, using direct key for development - this file is not committed to git
-      const apiKey = window.FLUTTER_GOOGLE_MAPS_API_KEY || 'AIzaSyA84veKMZe2dDicj9HzGSW3z9lek0RPdZk';
+      // Load API key from environment variable
+      const apiKey = window.FLUTTER_GOOGLE_MAPS_API_KEY || '${GOOGLE_MAPS_API_KEY}';
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry`;
       script.async = true;

@@ -54,6 +54,7 @@ dependencies:
 
   # Selección de imágenes
   image_picker: ^1.1.2
+  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
