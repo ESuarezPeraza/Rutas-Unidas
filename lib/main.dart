@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart' hide SearchBar;
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:myapp/screens/create_trip_screen.dart';
-import 'package:myapp/screens/my_trips_screen.dart';
+import 'package:myapp/screens/my_trips_screen_apple.dart';
 import 'package:myapp/screens/profile_screen.dart';
+import 'package:myapp/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import 'widgets/header.dart';
@@ -40,42 +41,11 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Rutas Unidas',
-      theme: ThemeData(
-        brightness: Brightness.light,
-        primaryColor: const Color(0xFFD45211),
-        scaffoldBackgroundColor: const Color(0xFFF8F6F6),
-        textTheme: GoogleFonts.spaceGroteskTextTheme(
-          Theme.of(context).textTheme.apply(
-                bodyColor: const Color(0xFF221610),
-                displayColor: const Color(0xFF221610),
-              ),
-        ),
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFFD45211),
-          surface: Color(0xFFF8F6F6),
-          onSurface: const Color(0xFF221610),
-          secondary: Color.fromRGBO(34, 22, 16, 0.7),
-        ),
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primaryColor: const Color(0xFFD45211),
-        scaffoldBackgroundColor: const Color(0xFF221610),
-        textTheme: GoogleFonts.spaceGroteskTextTheme(
-          Theme.of(context).textTheme.apply(
-                bodyColor: const Color(0xFFF8F6F6),
-                displayColor: const Color(0xFFF8F6F6),
-              ),
-        ),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFD45211),
-          surface: Color(0xFF221610),
-          onSurface: const Color(0xFFF8F6F6),
-          secondary: Color.fromRGBO(248, 246, 246, 0.7),
-        ),
-      ),
+      theme: AppTheme.lightTheme(context),
+      darkTheme: AppTheme.darkTheme(context),
       themeMode: themeProvider.themeMode,
       home: const MyHomePage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -92,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     ExploreScreen(),
-    MyTripsScreen(),
+    MyTripsScreenApple(),
     CreateTripScreen(),
     ProfileScreen(),
   ];
@@ -107,31 +77,43 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _widgetOptions.elementAt(_selectedIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Explorar',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).dividerTheme.color ?? AppTheme.gray4,
+              width: 0.5,
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Mis Viajes',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box),
-            label: 'Crear Viaje',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.secondary,
-        onTap: _onItemTapped,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        type: BottomNavigationBarType.fixed,
+        ),
+        child: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.search),
+              label: 'Explorar',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.map),
+              label: 'Mis Viajes',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.add_circled),
+              label: 'Crear Viaje',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.person),
+              label: 'Perfil',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Theme.of(context).colorScheme.primary,
+          unselectedItemColor: AppTheme.gray1,
+          onTap: _onItemTapped,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          type: BottomNavigationBarType.fixed,
+        ),
       ),
     );
   }
