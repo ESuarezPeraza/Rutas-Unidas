@@ -67,11 +67,18 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+
+  // Método público para cambiar el índice desde otras pantallas
+  void changeTab(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   static final List<Widget> _widgetOptions = <Widget>[
     const ExploreScreen(),
@@ -88,44 +95,56 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _widgetOptions.elementAt(_selectedIndex),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-          border: Border(
-            top: BorderSide(
-              color: Theme.of(context).dividerTheme.color ?? AppTheme.gray4,
-              width: 0.5,
+    return WillPopScope(
+      onWillPop: () async {
+        // Si estamos en una pantalla diferente a la principal (Explorar), volver a ella
+        if (_selectedIndex != 0) {
+          setState(() {
+            _selectedIndex = 0;
+          });
+          return false; // No permitir el pop del sistema
+        }
+        return true; // Permitir el pop del sistema si estamos en la pantalla principal
+      },
+      child: Scaffold(
+        body: _widgetOptions.elementAt(_selectedIndex),
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+            border: Border(
+              top: BorderSide(
+                color: Theme.of(context).dividerTheme.color ?? AppTheme.gray4,
+                width: 0.5,
+              ),
             ),
           ),
-        ),
-        child: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.search),
-              label: 'Explorar',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.map),
-              label: 'Mis Viajes',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.add_circled),
-              label: 'Crear Viaje',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.person),
-              label: 'Perfil',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Theme.of(context).colorScheme.primary,
-          unselectedItemColor: AppTheme.gray1,
-          onTap: _onItemTapped,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          type: BottomNavigationBarType.fixed,
+          child: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.search),
+                label: 'Explorar',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.map),
+                label: 'Mis Viajes',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.add_circled),
+                label: 'Crear Viaje',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.person),
+                label: 'Perfil',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Theme.of(context).colorScheme.primary,
+            unselectedItemColor: AppTheme.gray1,
+            onTap: _onItemTapped,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
+          ),
         ),
       ),
     );

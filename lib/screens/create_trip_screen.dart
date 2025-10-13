@@ -6,6 +6,7 @@ import 'package:myapp/widgets/custom_form_field.dart';
 import 'package:myapp/widgets/image_picker.dart';
 import 'package:myapp/widgets/location_picker.dart';
 import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/main.dart';
 
 class CreateTripScreen extends StatefulWidget {
   const CreateTripScreen({super.key});
@@ -40,6 +41,20 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     _meetingPointController.dispose();
     _logisticsController.dispose();
     super.dispose();
+  }
+
+  bool _hasUnsavedChanges() {
+    return _titleController.text.isNotEmpty ||
+           _descriptionController.text.isNotEmpty ||
+           _routeController.text.isNotEmpty ||
+           _meetingPointController.text.isNotEmpty ||
+           _logisticsController.text.isNotEmpty ||
+           _selectedStartDate != null ||
+           _selectedEndDate != null ||
+           _imageUrl != null ||
+           _meetingLocation != null ||
+           _destinationLocation != null ||
+           _isPublic != true; // true es el valor por defecto
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
@@ -155,7 +170,38 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            // Si hay cambios sin guardar, mostrar diálogo de confirmación
+            if (_hasUnsavedChanges()) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('¿Descartar cambios?'),
+                  content: const Text('Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Cerrar diálogo
+                        // En lugar de pop, cambiar al tab de Explorar
+                        // Buscar el ancestro MyHomePage y cambiar el índice
+                        final homePageState = context.findAncestorStateOfType<MyHomePageState>();
+                        homePageState?.changeTab(0);
+                      },
+                      child: const Text('Descartar'),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              // Cambiar al tab de Explorar en lugar de hacer pop
+              final homePageState = context.findAncestorStateOfType<MyHomePageState>();
+              homePageState?.changeTab(0);
+            }
+          },
         ),
         title: const Text(
           'Crear Viaje',

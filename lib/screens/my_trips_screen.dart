@@ -4,6 +4,7 @@ import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/trips_provider.dart';
 import 'package:myapp/widgets/trip_section.dart';
 import 'package:myapp/models/trip.dart';
+import 'package:myapp/main.dart';
 
 class MyTripsScreen extends StatefulWidget {
   const MyTripsScreen({super.key});
@@ -16,7 +17,9 @@ class _MyTripsScreenState extends State<MyTripsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserTrips();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserTrips();
+    });
   }
 
   Future<void> _loadUserTrips() async {
@@ -79,7 +82,11 @@ class _MyTripsScreenState extends State<MyTripsScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            // Cambiar al tab de Explorar en lugar de hacer pop
+            final homePageState = context.findAncestorStateOfType<MyHomePageState>();
+            homePageState?.changeTab(0);
+          },
         ),
         title: const Text(
           'Mis Viajes',

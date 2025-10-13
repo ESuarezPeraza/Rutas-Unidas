@@ -6,6 +6,7 @@ import 'package:myapp/widgets/experience_bar.dart';
 import 'package:myapp/widgets/profile_header.dart';
 import 'package:myapp/widgets/trip_history.dart';
 import 'package:myapp/models/trip.dart';
+import 'package:myapp/main.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,7 +19,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserData();
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -54,7 +57,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            // Cambiar al tab de Explorar en lugar de hacer pop
+            final homePageState = context.findAncestorStateOfType<MyHomePageState>();
+            homePageState?.changeTab(0);
+          },
         ),
         title: const Text(
           'Perfil',
