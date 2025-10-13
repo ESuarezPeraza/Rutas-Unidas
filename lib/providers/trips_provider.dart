@@ -5,6 +5,14 @@ import '../config/supabase_config.dart';
 import '../services/experience_service.dart';
 import '../services/storage_service.dart';
 
+extension SafeNotify on ChangeNotifier {
+  void safeNotifyListeners() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+  }
+}
+
 class TripsProvider with ChangeNotifier {
   List<Trip> _trips = [];
   List<Trip> _userTrips = [];
@@ -229,7 +237,7 @@ class TripsProvider with ChangeNotifier {
 
       if (existing != null) {
         _error = 'Ya estás participando en este viaje';
-        notifyListeners();
+        safeNotifyListeners();
         return false;
       }
 
@@ -248,7 +256,7 @@ class TripsProvider with ChangeNotifier {
 
       if (participantCount >= (tripResponse['max_participants'] ?? 10)) {
         _error = 'El viaje ya está completo';
-        notifyListeners();
+        safeNotifyListeners();
         return false;
       }
 
@@ -269,7 +277,7 @@ class TripsProvider with ChangeNotifier {
       return true;
     } catch (e) {
       _error = 'Error al unirse al viaje. Puede que ya estés participando o el viaje esté completo.';
-      notifyListeners();
+      safeNotifyListeners();
       return false;
     }
   }
@@ -289,7 +297,7 @@ class TripsProvider with ChangeNotifier {
       return true;
     } catch (e) {
       _error = 'Error al abandonar el viaje: $e';
-      notifyListeners();
+      safeNotifyListeners();
       return false;
     }
   }
