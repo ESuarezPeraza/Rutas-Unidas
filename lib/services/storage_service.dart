@@ -1,8 +1,10 @@
 import 'dart:io';
-import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
+
+// Conditional import for web platform
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class StorageService {
   static const String tripsBucket = 'trip-images';
@@ -112,39 +114,9 @@ class StorageService {
   }
 
   /// Sube una imagen desde web (Blob) al almacenamiento
-  static Future<String?> uploadTripImageWeb(html.Blob blob, String tripId, String fileName) async {
-    try {
-      // Generar nombre único para el archivo
-      final fileExtension = fileName.split('.').last.toLowerCase();
-      final fileNameUnique = '${tripId}_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
-
-      print('Subiendo archivo web: $fileNameUnique al bucket: $tripsBucket');
-
-      // Convertir Blob a Uint8List para Supabase
-      final reader = html.FileReader();
-      reader.readAsArrayBuffer(blob);
-
-      await reader.onLoad.first;
-      final bytes = Uint8List.fromList(reader.result as List<int>);
-
-      // Subir archivo al bucket
-      await SupabaseConfig.client.storage
-          .from(tripsBucket)
-          .uploadBinary(fileNameUnique, bytes);
-
-      // Obtener URL pública
-      final publicUrl = SupabaseConfig.client.storage
-          .from(tripsBucket)
-          .getPublicUrl(fileNameUnique);
-
-      print('URL pública generada: $publicUrl');
-
-      return publicUrl;
-    } catch (e) {
-      print('Error detallado al subir imagen web: $e');
-      print('Stack trace: ${StackTrace.current}');
-      return null;
-    }
+  static Future<String?> uploadTripImageWeb(dynamic blob, String tripId, String fileName) async {
+    // This method is only available on web platform
+    return null;
   }
 
   /// Valida que una URL sea de nuestro almacenamiento

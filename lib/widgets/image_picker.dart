@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart' as img_picker;
 import 'dart:io';
-import 'dart:html' as html;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../services/storage_service.dart';
 
 class ImagePicker extends StatefulWidget {
@@ -62,8 +62,9 @@ class _ImagePickerState extends State<ImagePicker> {
             print('Tamaño del archivo: ${bytes.length} bytes');
 
             // Crear un archivo temporal para Supabase
-            final tempFile = html.Blob([bytes]);
-            final imageUrl = await StorageService.uploadTripImageWeb(tempFile, tempId, pickedFile.name);
+            String? imageUrl;
+            // Para móvil, usar el método normal de subida
+            imageUrl = await StorageService.uploadTripImage(pickedFile.path, tempId);
 
             if (imageUrl != null) {
               setState(() {
