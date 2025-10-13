@@ -51,6 +51,9 @@ app.*.map.json
 .env.staging
 *.env
 
+# Android local properties (contains API keys)
+android/local.properties
+
 # Supabase configuration (contains sensitive keys)
 /lib/config/supabase_config.dart
 

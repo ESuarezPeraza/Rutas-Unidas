@@ -52,7 +52,7 @@ class _MyTripsScreenState extends State<MyTripsScreen> {
     final upcomingTripItems = upcomingTrips.map((trip) {
       final isOrganizer = trip.organizerId == authProvider.currentUser!.id;
       return {
-        'imageUrl': trip.imageUrl ?? 'https://via.placeholder.com/300x200',
+        'imageUrl': trip.imageUrl ?? 'https://picsum.photos/300/200?random=${trip.id.hashCode}',
         'title': trip.title,
         'subtitle': trip.formattedDate,
         'tag': {
@@ -65,7 +65,7 @@ class _MyTripsScreenState extends State<MyTripsScreen> {
     final pastTripItems = pastTrips.map((trip) {
       final isOrganizer = trip.organizerId == authProvider.currentUser!.id;
       return {
-        'imageUrl': trip.imageUrl ?? 'https://via.placeholder.com/300x200',
+        'imageUrl': trip.imageUrl ?? 'https://picsum.photos/300/200?random=${trip.id.hashCode}',
         'title': trip.title,
         'subtitle': trip.formattedDate,
         'tag': {

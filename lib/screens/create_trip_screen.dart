@@ -193,7 +193,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                 ImagePicker(
                   label: 'Añadir foto de portada',
                   icon: Icons.add_photo_alternate,
-                  backgroundImageUrl: _imageUrl ?? 'https://via.placeholder.com/300x200',
+                  backgroundImageUrl: _imageUrl ?? 'https://picsum.photos/300/200?random=${DateTime.now().millisecondsSinceEpoch}',
                   onImageSelected: (imageUrl) {
                     setState(() => _imageUrl = imageUrl);
                   },

@@ -38,7 +38,7 @@ class TripCardWithJoin extends StatelessWidget {
               topRight: Radius.circular(12),
             ),
             child: Image.network(
-              trip.imageUrl ?? 'https://via.placeholder.com/300x200',
+              trip.imageUrl ?? 'https://picsum.photos/300/200?random=${trip.id.hashCode}',
               height: 150,
               width: double.infinity,
               fit: BoxFit.cover,

@@ -19,7 +19,35 @@ cd rutas-unidas
 flutter pub get
 ```
 
-### 3. Configurar Supabase
+### 3. Configurar Google Maps API
+
+#### a) Obtener API Key de Google Maps
+1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
+2. Crea un nuevo proyecto o selecciona uno existente
+3. Habilita la **Maps SDK for Android** y **Maps SDK for iOS**
+4. Ve a **Credenciales** y crea una **API Key**
+5. Restringe la API Key para mayor seguridad:
+   - **Aplicaciones**: Android apps (con tu package name: `com.example.myapp`)
+   - **APIs**: Maps SDK for Android, Maps SDK for iOS
+
+#### b) Configurar para Android
+1. Copia el archivo template:
+```bash
+cp android/local.properties.example android/local.properties
+```
+
+2. Edita `android/local.properties` y configura tu API key:
+```
+GOOGLE_MAPS_API_KEY=tu_api_key_de_google_maps_aqui
+```
+
+#### c) Configurar para desarrollo Flutter
+Para desarrollo local, puedes usar variables de entorno:
+```bash
+flutter run --dart-define=GOOGLE_MAPS_API_KEY=tu_api_key_aqui
+```
+
+### 4. Configurar Supabase
 
 #### a) Crear proyecto en Supabase
 1. Ve a [supabase.com](https://supabase.com) y crea una cuenta
@@ -98,11 +126,26 @@ dependencies:
 
 ## 🔒 Seguridad
 
-- **Nunca commits las credenciales reales**
-- El archivo `lib/config/supabase_config.dart` está en `.gitignore`
-- Usa el template para compartir código sin datos sensibles
+### API Keys y Credenciales
+- **Nunca commits las credenciales reales al repositorio**
+- Los archivos `android/local.properties` y `.env` están en `.gitignore`
+- Usa los archivos `.example` como templates para compartir código sin datos sensibles
+- **Google Maps API Key**: Restringe el uso por aplicaciones y APIs específicas
+- **Supabase Keys**: Mantén las keys de producción separadas del código
+
+### Configuración Segura
+- Para desarrollo: usa `flutter run --dart-define=GOOGLE_MAPS_API_KEY=tu_key`
+- Para producción: configura variables de entorno en tu CI/CD
+- Android: `android/local.properties` contiene keys sensibles (no commitear)
+- Flutter: usa `--dart-define` o variables de entorno para runtime
 
 ## 🐛 Solución de Problemas
+
+### Error de Google Maps API
+- Verifica que la API key esté correctamente configurada en `android/local.properties`
+- Confirma que la API esté habilitada en Google Cloud Console
+- Revisa las restricciones de la API key (package name correcto)
+- Para desarrollo: usa `flutter run --dart-define=GOOGLE_MAPS_API_KEY=tu_key`
 
 ### Error de conexión a Supabase
 - Verifica que las credenciales sean correctas
@@ -115,6 +158,11 @@ dependencies:
 ### Problemas de autenticación
 - Confirma que RLS esté habilitado
 - Revisa las políticas de seguridad en Supabase
+
+### Error: GOOGLE_MAPS_API_KEY no está configurada
+- Copia `android/local.properties.example` a `android/local.properties`
+- Configura tu API key real en el nuevo archivo
+- Asegúrate de que `android/local.properties` no esté en git (está en .gitignore)
 
 ## 📞 Soporte
 

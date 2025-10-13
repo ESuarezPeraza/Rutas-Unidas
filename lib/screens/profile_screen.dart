@@ -79,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: [
               ProfileHeader(
-                avatarUrl: user.avatarUrl ?? 'https://via.placeholder.com/150',
+                avatarUrl: user.avatarUrl ?? 'https://picsum.photos/150/150?random=${user.id.hashCode}',
                 name: user.name ?? user.email.split('@')[0],
                 role: user.role ?? 'Viajero',
                 memberSince: 'Miembro desde ${user.createdAt.year}',
@@ -100,13 +100,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   trips: [
                     // Viajes pasados
                     ...pastTrips.map((trip) => {
-                      'imageUrl': trip.imageUrl ?? 'https://via.placeholder.com/300x200',
+                      'imageUrl': trip.imageUrl ?? 'https://picsum.photos/300/200?random=${trip.id.hashCode}',
                       'title': trip.title,
                       'subtitle': trip.formattedDate,
                     }).toList(),
                     // Viajes futuros
                     ...futureTrips.map((trip) => {
-                      'imageUrl': trip.imageUrl ?? 'https://via.placeholder.com/300x200',
+                      'imageUrl': trip.imageUrl ?? 'https://picsum.photos/300/200?random=${trip.id.hashCode}',
                       'title': trip.title,
                       'subtitle': trip.formattedDate,
                     }).toList(),

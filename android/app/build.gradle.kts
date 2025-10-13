@@ -29,8 +29,19 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        // Google Maps API Key from environment variable
-        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = System.getenv("GOOGLE_MAPS_API_KEY") ?: "your_default_key_here"
+        // Google Maps API Key from local.properties
+        val localProperties = java.util.Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { inputStream ->
+                localProperties.load(inputStream)
+            }
+        }
+
+        val googleMapsApiKey = localProperties.getProperty("GOOGLE_MAPS_API_KEY")
+            ?: throw GradleException("GOOGLE_MAPS_API_KEY no está configurada en android/local.properties. Copia android/local.properties.example a android/local.properties y configura tu API key.")
+
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
     }
 
     buildTypes {

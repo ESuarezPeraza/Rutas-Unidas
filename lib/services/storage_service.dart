@@ -22,7 +22,8 @@ class StorageService {
 
       if (!bucketExists) {
         print('ADVERTENCIA: El bucket $tripsBucket no existe. Debe ser creado manualmente en Supabase.');
-        print('Ve a https://supabase.com/dashboard/project/[tu-proyecto]/storage y crea el bucket "trip-images"');
+        print('Ve a https://supabase.com/dashboard/project/gymdpbgmowobgzznbfjm/storage y crea el bucket "trip-images"');
+        print('IMPORTANTE: Configura las políticas RLS para permitir uploads públicos o autenticados según necesites.');
       } else {
         print('Bucket $tripsBucket encontrado correctamente');
       }
