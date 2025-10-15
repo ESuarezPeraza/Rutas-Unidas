@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import '../models/trip.dart';
-import '../models/trip_participant.dart';
 import '../config/supabase_config.dart';
 import '../services/experience_service.dart';
 import '../services/storage_service.dart';
 
-extension SafeNotify on ChangeNotifier {
+class TripsProvider with ChangeNotifier {
+  final Logger _logger = Logger('TripsProvider');
+
   void safeNotifyListeners() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
-}
-
-class TripsProvider with ChangeNotifier {
-  List<Trip> _trips = [];
+  final List<Trip> _trips = [];
   List<Trip> _userTrips = [];
   List<Trip> _exploreTrips = [];
   bool _isLoading = false;
@@ -32,7 +31,7 @@ class TripsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      print('Cargando viajes de exploración...');
+      _logger.info('Cargando viajes de exploración...');
 
       final response = await SupabaseConfig.client
           .from('trips')
@@ -40,17 +39,17 @@ class TripsProvider with ChangeNotifier {
           .eq('is_public', true)
           .order('created_at', ascending: false);
 
-      print('Respuesta de Supabase: $response');
+      _logger.info('Respuesta de Supabase: $response');
 
       _exploreTrips = response.map<Trip>((json) {
-        print('Procesando viaje: $json');
+        _logger.info('Procesando viaje: $json');
         return Trip.fromJson(json);
       }).toList();
 
-      print('Viajes cargados exitosamente: ${_exploreTrips.length}');
+      _logger.info('Viajes cargados exitosamente: ${_exploreTrips.length}');
       _error = null;
     } catch (e) {
-      print('Error detallado al cargar viajes: $e');
+      _logger.severe('Error detallado al cargar viajes: $e');
       _error = 'Error al cargar viajes. Verifica tu conexión a internet.';
       _exploreTrips = [];
     }
@@ -65,7 +64,7 @@ class TripsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      print('Cargando viajes del usuario: $userId');
+      _logger.info('Cargando viajes del usuario: $userId');
 
       // Cargar viajes donde el usuario es organizador
       final organizerTrips = await SupabaseConfig.client
@@ -73,7 +72,7 @@ class TripsProvider with ChangeNotifier {
           .select('*, organizer:users(*)')
           .eq('organizer_id', userId);
 
-      print('Viajes como organizador: ${organizerTrips.length}');
+      _logger.info('Viajes como organizador: ${organizerTrips.length}');
 
       // Cargar viajes donde el usuario es participante
       final participantTrips = await SupabaseConfig.client
@@ -81,20 +80,20 @@ class TripsProvider with ChangeNotifier {
           .select('trip:trips(*, organizer:users(*))')
           .eq('user_id', userId);
 
-      print('Viajes como participante: ${participantTrips.length}');
+      _logger.info('Viajes como participante: ${participantTrips.length}');
 
       final trips = <Trip>[];
 
       // Agregar viajes organizados
       trips.addAll(organizerTrips.map<Trip>((json) {
-        print('Procesando viaje organizado: ${json['title']}');
+        _logger.info('Procesando viaje organizado: ${json['title']}');
         return Trip.fromJson(json);
       }));
 
       // Agregar viajes como participante
       for (final participant in participantTrips) {
         if (participant['trip'] != null) {
-          print('Procesando viaje como participante: ${participant['trip']['title']}');
+          _logger.info('Procesando viaje como participante: ${participant['trip']['title']}');
           trips.add(Trip.fromJson(participant['trip']));
         }
       }
@@ -108,10 +107,10 @@ class TripsProvider with ChangeNotifier {
       _userTrips = uniqueTrips.values.toList()
         ..sort((a, b) => (b.startDate ?? b.createdAt).compareTo(a.startDate ?? a.createdAt));
 
-      print('Viajes del usuario cargados: ${_userTrips.length}');
+      _logger.info('Viajes del usuario cargados: ${_userTrips.length}');
       _error = null;
     } catch (e) {
-      print('Error detallado al cargar viajes del usuario: $e');
+      _logger.severe('Error detallado al cargar viajes del usuario: $e');
       _error = 'Error al cargar tus viajes. Verifica tu conexión a internet.';
       _userTrips = [];
     }
@@ -142,14 +141,14 @@ class TripsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      print('=== CREANDO VIAJE ===');
-      print('Título: $title');
-      print('Descripción: $description');
-      print('Imagen URL: $imageUrl');
-      print('Fecha inicio: $startDate');
-      print('Fecha fin: $endDate');
-      print('Organizador ID: $organizerId');
-      print('Es público: $isPublic');
+      _logger.info('=== CREANDO VIAJE ===');
+      _logger.info('Título: $title');
+      _logger.info('Descripción: $description');
+      _logger.info('Imagen URL: $imageUrl');
+      _logger.info('Fecha inicio: $startDate');
+      _logger.info('Fecha fin: $endDate');
+      _logger.info('Organizador ID: $organizerId');
+      _logger.info('Es público: $isPublic');
 
       final tripData = {
         'title': title,
@@ -171,7 +170,7 @@ class TripsProvider with ChangeNotifier {
         'destination_address': destinationAddress,
       };
 
-      print('Datos a enviar: $tripData');
+      _logger.info('Datos a enviar: $tripData');
 
       final response = await SupabaseConfig.client
           .from('trips')
@@ -179,10 +178,10 @@ class TripsProvider with ChangeNotifier {
           .select('*, organizer:users(*)')
           .single();
 
-      print('Respuesta de Supabase: $response');
+      _logger.info('Respuesta de Supabase: $response');
 
       var newTrip = Trip.fromJson(response);
-      print('Viaje creado: ${newTrip.title}');
+      _logger.info('Viaje creado: ${newTrip.title}');
 
       // Si hay imagen, actualizar con el ID real del viaje
       if (imageUrl != null && imageUrl.isNotEmpty) {
@@ -211,13 +210,13 @@ class TripsProvider with ChangeNotifier {
       // Otorgar puntos de experiencia por crear viaje
       await ExperienceService.awardTripCreation(organizerId);
 
-      print('✅ Viaje creado exitosamente');
+      _logger.info('✅ Viaje creado exitosamente');
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
-      print('❌ Error detallado al crear viaje: $e');
-      print('Stack trace: ${StackTrace.current}');
+      _logger.severe('❌ Error detallado al crear viaje: $e');
+      _logger.severe('Stack trace: ${StackTrace.current}');
       _error = 'Error al crear viaje: $e';
       _isLoading = false;
       notifyListeners();

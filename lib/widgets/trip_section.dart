@@ -36,8 +36,8 @@ class TripSection extends StatelessWidget {
                 trailing: Chip(
                   label: Text(item['tag']!['label']!),
                   backgroundColor: item['tag']!['type']! == 'primary'
-                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                      : Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+                      : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
                   labelStyle: TextStyle(
                     color: item['tag']!['type']! == 'primary'
                         ? Theme.of(context).colorScheme.primary

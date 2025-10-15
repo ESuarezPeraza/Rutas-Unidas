@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart' as img_picker;
 import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import '../services/storage_service.dart';
 
 class ImagePicker extends StatefulWidget {

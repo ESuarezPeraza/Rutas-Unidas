@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/trips_provider.dart';
@@ -16,6 +17,8 @@ class CreateTripScreen extends StatefulWidget {
 }
 
 class _CreateTripScreenState extends State<CreateTripScreen> {
+  final Logger _logger = Logger('CreateTripScreen');
+
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -70,10 +73,15 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
         if (isStartDate) {
           _selectedStartDate = picked;
           // Si no hay fecha fin, la ponemos igual que la de inicio
-          if (_selectedEndDate == null) {
-            _selectedEndDate = picked;
-          }
+          _selectedEndDate ??= picked;
         } else {
+          // Validar que la fecha de fin no sea anterior a la de inicio
+          if (_selectedStartDate != null && picked.isBefore(_selectedStartDate!)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('La fecha de fin no puede ser anterior a la fecha de inicio')),
+            );
+            return;
+          }
           _selectedEndDate = picked;
         }
       });
@@ -81,11 +89,11 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   }
 
   Future<void> _createTrip() async {
-    print('=== INICIANDO CREACIÓN DE VIAJE ===');
+    _logger.info('=== INICIANDO CREACIÓN DE VIAJE ===');
 
     // Validar formulario
     if (!_formKey.currentState!.validate()) {
-      print('❌ Validación de formulario fallida');
+      _logger.warning('❌ Validación de formulario fallida');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Verifica que todos los campos sean correctos')),
       );
@@ -94,7 +102,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
 
     // Validar fecha de inicio
     if (_selectedStartDate == null) {
-      print('❌ Fecha de inicio no seleccionada');
+      _logger.warning('❌ Fecha de inicio no seleccionada');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor selecciona una fecha de inicio')),
       );
@@ -106,20 +114,20 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
 
     if (authProvider.currentUser == null) {
-      print('❌ Usuario no autenticado');
+      _logger.warning('❌ Usuario no autenticado');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuario no autenticado')),
       );
       return;
     }
 
-    print('✅ Validaciones pasadas');
-    print('📝 Título: ${_titleController.text.trim()}');
-    print('📅 Fecha inicio: $_selectedStartDate');
-    print('📅 Fecha fin: $_selectedEndDate');
-    print('🖼️ Imagen URL: $_imageUrl');
-    print('👤 Organizador ID: ${authProvider.currentUser!.id}');
-    print('🌐 Es público: $_isPublic');
+    _logger.info('✅ Validaciones pasadas');
+    _logger.info('📝 Título: ${_titleController.text.trim()}');
+    _logger.info('📅 Fecha inicio: $_selectedStartDate');
+    _logger.info('📅 Fecha fin: $_selectedEndDate');
+    _logger.info('🖼️ Imagen URL: $_imageUrl');
+    _logger.info('👤 Organizador ID: ${authProvider.currentUser!.id}');
+    _logger.info('🌐 Es público: $_isPublic');
 
     setState(() => _isLoading = true);
 
@@ -144,7 +152,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     setState(() => _isLoading = false);
 
     if (success) {
-      print('✅ Viaje creado exitosamente');
+      _logger.info('✅ Viaje creado exitosamente');
       // Actualizar la lista de viajes del usuario
       await tripsProvider.loadUserTrips(authProvider.currentUser!.id);
 
@@ -155,7 +163,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
         Navigator.of(context).pop(); // Volver a la pantalla anterior
       }
     } else {
-      print('❌ Error al crear viaje: ${tripsProvider.error}');
+      _logger.severe('❌ Error al crear viaje: ${tripsProvider.error}');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(tripsProvider.error ?? 'Error al crear viaje')),
@@ -262,7 +270,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () async {
-                        final result = await Navigator.push(
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LocationPicker(
@@ -373,7 +381,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () async {
-                        final result = await Navigator.push(
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LocationPicker(
@@ -434,7 +442,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                   subtitle: const Text('Los demás usuarios podrán ver y unirse a este viaje'),
                   value: _isPublic,
                   onChanged: (value) => setState(() => _isPublic = value),
-                  activeColor: AppTheme.primaryBlue,
+                  activeThumbColor: AppTheme.primaryBlue,
                 ),
               ],
             ),

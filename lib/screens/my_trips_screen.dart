@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/trips_provider.dart';
 import 'package:myapp/widgets/trip_section.dart';
-import 'package:myapp/models/trip.dart';
 import 'package:myapp/main.dart';
 
 class MyTripsScreen extends StatefulWidget {

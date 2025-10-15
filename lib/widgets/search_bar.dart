@@ -16,7 +16,7 @@ class SearchBar extends StatelessWidget {
             borderSide: BorderSide.none,
           ),
           filled: true,
-          fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+          fillColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
           contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
         ),
       ),

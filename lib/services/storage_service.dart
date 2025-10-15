@@ -1,34 +1,31 @@
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:logging/logging.dart';
 import '../config/supabase_config.dart';
-
-// Conditional import for web platform
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class StorageService {
   static const String tripsBucket = 'trip-images';
+  static final Logger _logger = Logger('StorageService');
 
   /// Inicializa el bucket de almacenamiento si no existe
   static Future<void> initializeStorage() async {
     try {
-      print('Verificando storage...');
+      _logger.info('Verificando storage...');
 
       // Verificar si el bucket existe
       final buckets = await SupabaseConfig.client.storage.listBuckets();
-      print('Buckets existentes: ${buckets.map((b) => b.id).toList()}');
+      _logger.info('Buckets existentes: ${buckets.map((b) => b.id).toList()}');
 
       final bucketExists = buckets.any((bucket) => bucket.id == tripsBucket);
 
       if (!bucketExists) {
-        print('ADVERTENCIA: El bucket $tripsBucket no existe. Debe ser creado manualmente en Supabase.');
-        print('Ve a https://supabase.com/dashboard/project/gymdpbgmowobgzznbfjm/storage y crea el bucket "trip-images"');
-        print('IMPORTANTE: Configura las políticas RLS para permitir uploads públicos o autenticados según necesites.');
+        _logger.info('ADVERTENCIA: El bucket $tripsBucket no existe. Debe ser creado manualmente en Supabase.');
+        _logger.info('Ve a https://supabase.com/dashboard/project/gymdpbgmowobgzznbfjm/storage y crea el bucket "trip-images"');
+        _logger.info('IMPORTANTE: Configura las políticas RLS para permitir uploads públicos o autenticados según necesites.');
       } else {
-        print('Bucket $tripsBucket encontrado correctamente');
+        _logger.info('Bucket $tripsBucket encontrado correctamente');
       }
     } catch (e) {
-      print('Error verificando storage: $e');
+      _logger.info('Error verificando storage: $e');
       // Continuar sin el bucket por ahora
     }
   }
@@ -38,16 +35,16 @@ class StorageService {
     try {
       final file = File(imagePath);
       if (!await file.exists()) {
-        print('Error: El archivo de imagen no existe en la ruta: $imagePath');
+        _logger.info('Error: El archivo de imagen no existe en la ruta: $imagePath');
         throw Exception('El archivo de imagen no existe');
       }
 
       // Verificar tamaño del archivo
       final fileSize = await file.length();
-      print('Tamaño del archivo: $fileSize bytes');
+      _logger.info('Tamaño del archivo: $fileSize bytes');
 
       if (fileSize > 5 * 1024 * 1024) { // 5MB
-        print('Error: Archivo demasiado grande: $fileSize bytes');
+        _logger.info('Error: Archivo demasiado grande: $fileSize bytes');
         throw Exception('El archivo es demasiado grande (máximo 5MB)');
       }
 
@@ -55,26 +52,26 @@ class StorageService {
       final fileExtension = imagePath.split('.').last.toLowerCase();
       final fileName = '${tripId}_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
 
-      print('Subiendo archivo: $fileName al bucket: $tripsBucket');
+      _logger.info('Subiendo archivo: $fileName al bucket: $tripsBucket');
 
       // Subir archivo al bucket
       final uploadResponse = await SupabaseConfig.client.storage
           .from(tripsBucket)
           .upload(fileName, file);
 
-      print('Respuesta de subida: $uploadResponse');
+      _logger.info('Respuesta de subida: $uploadResponse');
 
       // Obtener URL pública
       final publicUrl = SupabaseConfig.client.storage
           .from(tripsBucket)
           .getPublicUrl(fileName);
 
-      print('URL pública generada: $publicUrl');
+      _logger.info('URL pública generada: $publicUrl');
 
       return publicUrl;
     } catch (e) {
-      print('Error detallado al subir imagen: $e');
-      print('Stack trace: ${StackTrace.current}');
+      _logger.info('Error detallado al subir imagen: $e');
+      _logger.info('Stack trace: ${StackTrace.current}');
       return null;
     }
   }
@@ -93,7 +90,7 @@ class StorageService {
 
       return true;
     } catch (e) {
-      print('Error deleting image: $e');
+      _logger.info('Error deleting image: $e');
       return false;
     }
   }
@@ -109,7 +106,7 @@ class StorageService {
       // Subir nueva imagen
       return await uploadTripImage(newImagePath, tripId);
     } catch (e) {
-      print('Error updating image: $e');
+      _logger.info('Error updating image: $e');
       return null;
     }
   }

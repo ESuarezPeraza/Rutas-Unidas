@@ -13,14 +13,14 @@ class TripCardApple extends StatelessWidget {
   final VoidCallback? onTap;
 
   const TripCardApple({
-    Key? key,
+    super.key,
     required this.imageUrl,
     required this.title,
     required this.subtitle,
     this.badgeLabel,
     this.badgeType,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

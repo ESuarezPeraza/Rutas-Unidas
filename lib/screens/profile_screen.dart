@@ -5,7 +5,6 @@ import 'package:myapp/providers/trips_provider.dart';
 import 'package:myapp/widgets/experience_bar.dart';
 import 'package:myapp/widgets/profile_header.dart';
 import 'package:myapp/widgets/trip_history.dart';
-import 'package:myapp/models/trip.dart';
 import 'package:myapp/main.dart';
 
 class ProfileScreen extends StatefulWidget {

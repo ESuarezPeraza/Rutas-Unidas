@@ -11,6 +11,8 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
 
+    print('DEBUG: AuthWrapper build - isLoading: ${authProvider.isLoading}, isAuthenticated: ${authProvider.isAuthenticated}, currentUser: ${authProvider.currentUser?.email}');
+
     if (authProvider.isLoading) {
       return Scaffold(
         body: Container(
@@ -50,9 +52,11 @@ class AuthWrapper extends StatelessWidget {
     }
 
     if (authProvider.isAuthenticated) {
+      print('DEBUG: AuthWrapper - User authenticated, showing MyHomePage');
       return const MyHomePage(); // Tu pantalla principal con navegación
     }
 
+    print('DEBUG: AuthWrapper - User not authenticated, showing AuthScreen');
     return const AuthScreen();
   }
 }

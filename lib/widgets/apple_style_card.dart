@@ -25,7 +25,6 @@ class _AppleStyleCardState extends State<AppleStyleCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  bool _isPressed = false;
 
   @override
   void initState() {
@@ -51,21 +50,18 @@ class _AppleStyleCardState extends State<AppleStyleCard>
 
   void _handleTapDown(TapDownDetails details) {
     if (widget.enableAnimation && widget.onTap != null) {
-      setState(() => _isPressed = true);
       _controller.forward();
     }
   }
 
   void _handleTapUp(TapUpDetails details) {
     if (widget.enableAnimation && widget.onTap != null) {
-      setState(() => _isPressed = false);
       _controller.reverse();
     }
   }
 
   void _handleTapCancel() {
     if (widget.enableAnimation && widget.onTap != null) {
-      setState(() => _isPressed = false);
       _controller.reverse();
     }
   }

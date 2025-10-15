@@ -45,6 +45,9 @@ dependencies:
   # Base de datos y autenticación
   supabase_flutter: ^2.5.7
 
+  # Logging
+  logging: ^1.2.0
+
   # Mapas y ubicación
   google_maps_flutter: ^2.5.3
   geolocator: ^11.0.0
@@ -55,6 +58,9 @@ dependencies:
   # Selección de imágenes
   image_picker: ^1.1.2
   flutter_dotenv: ^6.0.0
+
+  # Conectividad
+  connectivity_plus: ^6.0.0
 
 dev_dependencies:
   flutter_test:
